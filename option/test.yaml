@@ -1,0 +1,9 @@
+runsetting:
+  epoch: 9
+  filepath: 'run/PPR-RGB-c-ch4-cp1 2023.12.25--19-48-10'
+args:
+  dataset:
+    data_root:
+#      ["input",'result','label','infrared']
+output: ["input",'result','label','infrared'   ]
+

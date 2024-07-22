@@ -1,0 +1,46 @@
+
+#noise level in denoising or compression level in jpeg compression artifact reduction
+sigma: 15
+runsetting:
+#  new continue
+  command: continue
+  filepath: 'run/PPR-RGB-c-ch4-cp1 2023.12.25--19-48-10'
+dataset:
+#ImageDataset_XYZ ImageDataset_sRGB PPR_ImageDataset_sRGB
+  name: PPR_ImageDataset_sRGB
+  #d:/aipro/lkj/data /mnt/d/aipro/lkj/data  C:/hddata
+  data_root: C:/hddata
+#  target_c target_a target_b expertC
+  version: target_a
+  batch_size: 1
+  n_cpu: 1
+train:
+  lut:
+#    cat（concat） co（侧枝） double-co
+    lead_strady: double-co
+    lut_share: True
+    att_share: False
+    ch_radio: 4
+    press_radio: 1
+
+  lut_n: 5
+  lut_dim: 33
+  seed: 15
+  channel: 3
+  device: cuda:0
+  isRefine: True
+  expan_att_chans: 4
+
+  refine_share: True
+  n_epochs: 300
+  print_each_step: 5
+  embed_dim: 16
+  patch_size: 64
+  lut_weight: 1
+  ir_weight: 1
+  lambda_smooth: 0.0001
+  lambda_monotonicity: 10.0
+  lr: 0.0002
+  b1: 0.9
+  b2: 0.999
+  schedule_iter: 10
