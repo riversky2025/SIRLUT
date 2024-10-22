@@ -16,7 +16,7 @@ from models import  Enhancer
 from utils import create_dir, logger, set_random_seed, CharbonnierLoss, create_folder_for_run
 from collections import defaultdict
 from registry import DATASET_REGISTRY
-import rsdataset
+import dataset
 
 
 class AverageMeter(object):
@@ -50,7 +50,9 @@ def train():
     checkpoint = None
     loaded_checkpoint_file_name = None
     if args.runsetting.command == 'new':
-        runName = "{}-{}-{}-ch{}-cp{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],trainOpt.lut.ch_radio,trainOpt.lut.press_radio)
+        runName = "{}-{}-{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:],
+                                                            dataSetOpt.version[-1:]
+                                                            )
         trainOpt.epoch = 0
 
         this_run_folder = create_folder_for_run("./run", runName)
@@ -66,14 +68,14 @@ def train():
             pickle.dump(trainOpt, f)
             pickle.dump(dataSetOpt, f)
     else:
-
         this_run_folder = args.runsetting.filepath
         options_file = os.path.join(this_run_folder, 'options-and-config.pickle')
         trainOpt, dataSetOpt = utils.load_options(options_file)
 
-        runName = "{}-{}-{}-ch{}-cp{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],
-                                              trainOpt.lut.ch_radio, trainOpt.lut.press_radio)
-
+        runName = "{}-{}-{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:],
+                                                            dataSetOpt.version[-1:],
+                                                            )
+        trainOpt.n_epochs=args.train.n_epochs
         checkpoint, loaded_checkpoint_file_name = utils.load_last_checkpoint(
             os.path.join(this_run_folder, 'checkpoints'))
         trainOpt.epoch = checkpoint['epoch'] + 1
@@ -92,7 +94,6 @@ def train():
 
     enhancer = Enhancer(trainOpt)
     if args.runsetting.command == 'continue':
-        # if we are continuing, we have to load the model params
         assert checkpoint is not None
         logging.info(f'Loading checkpoint from file {loaded_checkpoint_file_name}')
         utils.model_from_checkpoint(enhancer, checkpoint)
@@ -127,7 +128,6 @@ def train():
                     "t|{}/{} l:{:.3f},p:{:.2f},s:{:.3f}"
                     .format(epoch, trainOpt.n_epochs,
                             training_meter['loss'].avg, training_meter['psnr'].avg, training_meter['ssim'].avg))
-            # logging.info("Iteration: {:0>3}, Loss: {:.8f}".format(curr_itrs, loss.item()))
         utils.write_losses(os.path.join(this_run_folder, 'train.csv'), training_meter, epoch)
         first_iteration = True
         val_average = defaultdict(AverageMeter)
@@ -153,8 +153,6 @@ def train():
                     .format(epoch, trainOpt.n_epochs,
                             val_average['loss'].avg, val_average['psnr'].avg, val_average['ssim'].avg))
 
-        # utils.log_progress(val_average)
-        # logging.info('-' * 40)
         utils.save_checkpoint(enhancer, runName, epoch, os.path.join(this_run_folder, 'checkpoints'))
         utils.write_losses(os.path.join(this_run_folder, 'validation.csv'), val_average, epoch)
 
