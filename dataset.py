@@ -6,11 +6,10 @@ from PIL import Image
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as F
-
+import torchvision.transforms.functional as TF
 import os
 
 suffixes = ['/*.png', '/*.jpg', '/*.bmp', '/*.tif']
-from transformers import BertTokenizer
 
 from registry import DATASET_REGISTRY
 
@@ -35,7 +34,6 @@ class ImageDataset_XYZ(Dataset):
     def __init__(self, option, mode="train", combined=True):
         self.mode = mode
         root = os.path.join(option.data_root, "fiveK")
-        self.tokenizer = BertTokenizer.from_pretrained('./bert-base-uncased')
 
         file = open(os.path.join(root, 'train_input.txt'), 'r')
         set1_input_files = sorted(file.readlines())
@@ -129,8 +127,7 @@ class ImageDataset_sRGB(Dataset):
         self.mode = mode
         root = os.path.join(option.data_root, "fiveK")
 
-        self.tokenizer = BertTokenizer.from_pretrained('./bert-base-uncased')
-
+        self.img_size=option['img_size']
         file = open(os.path.join(root, 'train_input.txt'), 'r')
         set1_input_files = sorted(file.readlines())
         self.set1_input_files = list()
@@ -197,18 +194,41 @@ class ImageDataset_sRGB(Dataset):
         # img_input = flexible_rescale_to_zero_one(img_input)
         # img_exptC = flexible_rescale_to_zero_one(img_exptC)
         # img_inf = flexible_rescale_to_zero_one(img_inf)
-        img_input = self.transform(img_input)
-        img_exptC = self.transform(img_exptC)
-        img_inf = self.transform(img_inf)
         if self.mode == "train":
+
+            # ratio_H = np.random.uniform(0.6, 1.0)
+            # ratio_W = np.random.uniform(0.6, 1.0)
+            # W, H = img_input._size
+            # crop_h = round(H * ratio_H)
+            # crop_w = round(W * ratio_W)
+            # i, j, h, w = transforms.RandomCrop.get_params(img_input, output_size=(self.img_size, self.img_size))
+            # img_input = TF.crop(img_input, i, j, h, w)
+            # img_exptC = TF.crop(img_exptC, i, j, h, w)
+            # img_inf = TF.crop(img_inf, i, j, h, w)
+            # img_input = TF.resized_crop(img_input, i, j, h, w, (320,320))
+            # img_exptC = TF.resized_crop(img_exptC, i, j, h, w, (320,320))
+
             if np.random.random() > 0.5:
-                img_input = F.hflip(img_input)
-                img_exptC = F.hflip(img_exptC)
-                img_inf = F.hflip(img_inf)
+                img_input = TF.hflip(img_input)
+                img_exptC = TF.hflip(img_exptC)
+                img_inf = TF.hflip(img_inf)
+
             a = np.random.uniform(0.8, 1.2)
-            img_input = F.adjust_brightness(img_input, a)
+            img_input = TF.adjust_brightness(img_input, a)
+
+
             a = np.random.uniform(0.8, 1.2)
-            img_input = F.adjust_saturation(img_input, a)
+            img_input = TF.adjust_saturation(img_input, a)
+            a = np.random.uniform(0.8, 1.2)
+            img_inf = TF.adjust_brightness(img_inf, a)
+
+            a = np.random.uniform(0.8, 1.2)
+            img_inf = TF.adjust_saturation(img_inf, a)
+
+        img_input = TF.to_tensor(img_input)
+        img_exptC = TF.to_tensor(img_exptC)
+        img_inf=TF.to_tensor(img_inf)
+
 
         filename, _ = os.path.splitext(img_name)
         return {"A_input": img_input, "A_exptC": img_exptC, "A_Inf": img_inf, "img_text": self.encodings_dict[filename],
