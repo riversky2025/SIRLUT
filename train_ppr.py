@@ -16,7 +16,7 @@ from models import  Enhancer
 from utils import create_dir, logger, set_random_seed, CharbonnierLoss, create_folder_for_run
 from collections import defaultdict
 from registry import DATASET_REGISTRY
-import rsdataset
+import dataset
 
 
 class AverageMeter(object):
@@ -50,7 +50,7 @@ def train():
     checkpoint = None
     loaded_checkpoint_file_name = None
     if args.runsetting.command == 'new':
-        runName = "{}-{}-{}-ch{}-cp{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],
+        runName = "{}-{}-{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],
                                               trainOpt.lut.ch_radio, trainOpt.lut.press_radio)
         trainOpt.epoch = 0
 
@@ -72,7 +72,7 @@ def train():
         options_file = os.path.join(this_run_folder, 'options-and-config.pickle')
         trainOpt, dataSetOpt = utils.load_options(options_file)
 
-        runName = "{}-{}-{}-ch{}-cp{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],
+        runName = "{}-{}-{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],
                                               trainOpt.lut.ch_radio, trainOpt.lut.press_radio)
 
         checkpoint, loaded_checkpoint_file_name = utils.load_last_checkpoint(
