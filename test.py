@@ -15,7 +15,7 @@ import utils
 from models import  Enhancer
 from utils import create_dir, logger, set_random_seed, CharbonnierLoss, create_folder_for_run
 from collections import defaultdict
-import rsdataset
+import dataset
 from registry import DATASET_REGISTRY
 
 
@@ -45,22 +45,17 @@ from omegaconf import OmegaConf
 def test():
     args = OmegaConf.load("option/test.yaml")
 
-    this_run_folder = args.runsetting.filepath
+    this_run_folder = 'pretrained_model/sRGB'
     options_file = os.path.join(this_run_folder, 'options-and-config.pickle')
     trainOpt, dataSetOpt = utils.load_options(options_file)
 
-    # runName = "{}-{}-{}-ch{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],trainOpt.lut.ch_radio)
-    runName = "{}-{}-{}-ch{}-cp{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:], dataSetOpt.version[-1:],
-                                          trainOpt.lut.ch_radio, trainOpt.lut.press_radio)
-    # runName = "ab-{}-{}-{}-ch{}-cp{}-lu{}-re{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:],
-    #                                                    dataSetOpt.version[-1:], trainOpt.lut.ch_radio,
-    #                                                    trainOpt.lut.press_radio, trainOpt.lutFusion,
-    #                                                    trainOpt.refineFusion)
+    runName = "{}-{}-{}".format(dataSetOpt.name[:3], dataSetOpt.name[-3:],
+                                                            dataSetOpt.version[-1:])
     checkpoint, loaded_checkpoint_file_name = utils.load_epoch_checkpoint(
-        os.path.join(this_run_folder,'checkpoints'), runName,args.runsetting.epoch)
+        this_run_folder, runName)
 
     # if args.dataset.data_root is not None:
-    #     dataSetOpt.data_root = args.dataset.data_root
+    dataSetOpt.data_root = args.args.dataset.data_root
 
     set_random_seed(trainOpt.seed)
 
