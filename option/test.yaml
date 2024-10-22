@@ -1,9 +1,8 @@
 runsetting:
-  epoch: 9
-  filepath: 'run/PPR-RGB-c-ch4-cp1 2023.12.25--19-48-10'
+  epoch: 202
+  filepath: 'pretrained_model/sRGB'
 args:
   dataset:
-    data_root:
+    data_root: E:\lh\data
 #      ["input",'result','label','infrared']
-output: ["input",'result','label','infrared'   ]
-
+output: ['result','label'  ]
